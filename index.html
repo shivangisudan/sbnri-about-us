@@ -1202,17 +1202,40 @@
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
   // A second copy lets the strip loop without a visible jump.
-  const repeatedPhotos = photoTrack.firstElementChild.cloneNode(true);
+  const photoGroup = photoTrack.firstElementChild;
+  const repeatedPhotos = photoGroup.cloneNode(true);
   repeatedPhotos.setAttribute("aria-hidden", "true");
   photoTrack.append(repeatedPhotos);
 
   let position = 0;
+  let groupWidth = photoGroup.offsetWidth;
   let lastFrameTime = 0;
   let lastPointerX = 0;
+  let activePhotoPointer = null;
   let isDragging = false;
+  let photosVisible = true;
+  let resumePhotosAt = 0;
+
+  // Measure the row when its size changes, instead of measuring it every frame.
+  if ("ResizeObserver" in window) {
+    new ResizeObserver(() => {
+      groupWidth = photoGroup.offsetWidth;
+      drawPhotos();
+    }).observe(photoGroup);
+  } else {
+    window.addEventListener("resize", () => {
+      groupWidth = photoGroup.offsetWidth;
+      drawPhotos();
+    });
+  }
+
+  if ("IntersectionObserver" in window) {
+    new IntersectionObserver(([entry]) => {
+      photosVisible = entry.isIntersecting;
+    }).observe(photoStrip);
+  }
 
   function drawPhotos() {
-    const groupWidth = photoTrack.firstElementChild.getBoundingClientRect().width;
     if (!groupWidth) return;
 
     // Both groups look the same, so wrapping the distance makes a seamless loop.
@@ -1225,10 +1248,10 @@
     const elapsed = lastFrameTime ? Math.min(time - lastFrameTime, 50) : 0;
     lastFrameTime = time;
 
-    if (!isDragging && !reducedMotion.matches && !document.hidden) {
-      // One full pass takes about 110 seconds.
-      const groupWidth = photoTrack.firstElementChild.getBoundingClientRect().width;
-      position -= (groupWidth / 110000) * elapsed;
+    if (!isDragging && photosVisible && time >= resumePhotosAt && !reducedMotion.matches && !document.hidden) {
+      // Use a gentler pace on phones; keep the desktop loop at 110 seconds.
+      const pixelsPerSecond = window.innerWidth <= 700 ? 14 : groupWidth / 110;
+      position -= pixelsPerSecond * elapsed / 1000;
       drawPhotos();
     }
     requestAnimationFrame(movePhotos);
@@ -1236,6 +1259,8 @@
 
   photoStrip.addEventListener("pointerdown", (event) => {
     if (event.pointerType === "mouse" && event.button !== 0) return;
+    if (activePhotoPointer !== null) return;
+    activePhotoPointer = event.pointerId;
     isDragging = true;
     lastPointerX = event.clientX;
     photoStrip.classList.add("is-dragging");
@@ -1243,19 +1268,24 @@
   });
 
   photoStrip.addEventListener("pointermove", (event) => {
-    if (!isDragging) return;
+    if (event.pointerId !== activePhotoPointer) return;
     position += event.clientX - lastPointerX;
     lastPointerX = event.clientX;
     drawPhotos();
   });
 
-  function endDrag() {
+  function endDrag(event) {
+    if (event.pointerId !== activePhotoPointer) return;
+    activePhotoPointer = null;
     isDragging = false;
+    // Let the photo stay where the visitor left it before autoplay resumes.
+    resumePhotosAt = performance.now() + 1800;
     photoStrip.classList.remove("is-dragging");
   }
 
   photoStrip.addEventListener("pointerup", endDrag);
   photoStrip.addEventListener("pointercancel", endDrag);
+  photoStrip.addEventListener("lostpointercapture", endDrag);
   requestAnimationFrame(movePhotos);
 
   // Team photos can be moved briefly, then return to their original places.
