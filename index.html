@@ -729,8 +729,10 @@
         .hero-content::before { top: 330px; right: auto; left: 0; background-image: url("assets/carousel-ellipse-mobile.svg"); }
         .photo-strip { padding: 12px 0; }
         .photo-group { gap: 22px; padding-right: 22px; }
-        /* The extra space matters only when JavaScript adds the looping copy. */
-        html.has-js .photo-group { padding-right: calc(100vw + 24px); }
+        /* On phones, finish one pass before restarting the photos. */
+        html.has-js .photo-group[aria-hidden="true"] { display: none; }
+        .photo-track.is-loop-resetting { opacity: 0; transition: none; }
+        .photo-track { transition: opacity 450ms ease; }
         .polaroid { flex-basis: calc(var(--card-width) * 0.555); padding: 8px 8px 11px; border-radius: 4px; }
         .polaroid figcaption { margin-top: 8px; font-size: 11px; }
         .polaroid:nth-child(3) { --photo-width: 100%; --photo-height: 100%; --photo-left: 0%; --photo-top: 0%; }
@@ -754,8 +756,8 @@
         .values-intro > p:not(.eyebrow):not(.values-progress) { font-size: 16px; line-height: 24px; }
         .values-progress { margin-top: 64px; }
         /* JavaScript measures the tallest card and sets this value on .values. */
-        .values-cards { --value-card-height: inherit; --value-card-gap: 40vh; grid-column: 1; grid-row: 2; padding: 40px 20px 0; }
-        .value-stack-tail { height: max(calc(100vh - 20px), calc(var(--value-card-height) + var(--value-card-gap))); }
+        .values-cards { --value-card-height: inherit; --value-card-gap: 18vh; grid-column: 1; grid-row: 2; padding: 40px 20px 0; }
+        .value-stack-tail { height: clamp(80px, 14vh, 120px); }
         .value-controls { display: none; }
         .value-card { top: 20px; padding: 20px; scroll-margin-top: 20px; }
         .value-card:hover:not(.is-covered) { transform: none; }
@@ -815,6 +817,7 @@
       }
       @media (prefers-reduced-motion: reduce) and (max-width: 700px) {
         .values-cards { padding-bottom: 40px; }
+        .photo-track { transition: none; }
       }
 
     </style>
@@ -1218,8 +1221,9 @@
   const photoStrip = document.querySelector("#photos");
   const photoTrack = document.querySelector("#photo-track");
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const mobilePhotos = window.matchMedia("(max-width: 700px)");
 
-  // A second copy lets the strip loop without a visible jump.
+  // Desktop uses a second copy for a seamless loop. Mobile restarts after the last photo.
   const photoGroup = photoTrack.firstElementChild;
   const repeatedPhotos = photoGroup.cloneNode(true);
   repeatedPhotos.setAttribute("aria-hidden", "true");
@@ -1227,6 +1231,7 @@
 
   let position = 0;
   let groupWidth = photoGroup.offsetWidth;
+  let mobileEnd = 0;
   let lastFrameTime = 0;
   let lastPointerX = 0;
   let activePhotoPointer = null;
@@ -1235,17 +1240,24 @@
   let resumePhotosAt = 0;
 
   // Measure the row when its size changes, instead of measuring it every frame.
-  if ("ResizeObserver" in window) {
-    new ResizeObserver(() => {
-      groupWidth = photoGroup.offsetWidth;
-      drawPhotos();
-    }).observe(photoGroup);
-  } else {
-    window.addEventListener("resize", () => {
-      groupWidth = photoGroup.offsetWidth;
-      drawPhotos();
-    });
+  function measurePhotos() {
+    groupWidth = photoGroup.offsetWidth;
+    const lastPhoto = photoGroup.lastElementChild;
+    mobileEnd = lastPhoto.offsetLeft + lastPhoto.offsetWidth + 16;
+    drawPhotos();
   }
+
+  if ("ResizeObserver" in window) {
+    new ResizeObserver(measurePhotos).observe(photoGroup);
+  } else {
+    window.addEventListener("resize", measurePhotos);
+  }
+  mobilePhotos.addEventListener("change", () => {
+    position = 0;
+    photoTrack.classList.remove("is-loop-resetting");
+    measurePhotos();
+  });
+  measurePhotos();
 
   if ("IntersectionObserver" in window) {
     new IntersectionObserver(([entry]) => {
@@ -1256,10 +1268,23 @@
   function drawPhotos() {
     if (!groupWidth) return;
 
-    // Both groups look the same, so wrapping the distance makes a seamless loop.
-    while (position <= -groupWidth) position += groupWidth;
-    while (position > 0) position -= groupWidth;
+    if (mobilePhotos.matches) {
+      position = Math.max(-mobileEnd, Math.min(0, position));
+    } else {
+      // Both groups look the same, so wrapping the distance makes a seamless loop.
+      while (position <= -groupWidth) position += groupWidth;
+      while (position > 0) position -= groupWidth;
+    }
     photoTrack.style.transform = `translateX(${position}px)`;
+  }
+
+  function restartMobilePhotos() {
+    // At this point the last photo is fully offscreen, so the reset is invisible.
+    photoTrack.classList.add("is-loop-resetting");
+    position = 0;
+    drawPhotos();
+    setTimeout(() => photoTrack.classList.remove("is-loop-resetting"), 60);
+    resumePhotosAt = Math.max(resumePhotosAt, performance.now() + 650);
   }
 
   function movePhotos(time) {
@@ -1268,9 +1293,10 @@
 
     if (!isDragging && photosVisible && time >= resumePhotosAt && !reducedMotion.matches && !document.hidden) {
       // Use a gentler pace on phones; keep the desktop loop at 110 seconds.
-      const pixelsPerSecond = window.innerWidth <= 700 ? 14 : groupWidth / 110;
+      const pixelsPerSecond = mobilePhotos.matches ? 22 : groupWidth / 110;
       position -= pixelsPerSecond * elapsed / 1000;
       drawPhotos();
+      if (mobilePhotos.matches && position <= -mobileEnd) restartMobilePhotos();
     }
     requestAnimationFrame(movePhotos);
   }
@@ -1298,6 +1324,7 @@
     isDragging = false;
     // Let the photo stay where the visitor left it before autoplay resumes.
     resumePhotosAt = performance.now() + 1800;
+    if (mobilePhotos.matches && position <= -mobileEnd) restartMobilePhotos();
     photoStrip.classList.remove("is-dragging");
   }
 
