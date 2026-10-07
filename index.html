@@ -582,16 +582,20 @@
       .values-progress span { color: rgb(255 255 255 / 60%); }
       .values-cards { --value-card-height: 360px; --value-card-gap: 48vh; min-width: 0; grid-column: 2; grid-row: 1; padding: 80px 80px 0; }
       .value-card { display: flex; flex-direction: column; justify-content: space-between; position: sticky; top: 80px; z-index: var(--stack-order); width: min(100%, 540px); min-width: 0; min-height: var(--value-card-height); margin: 0 auto var(--value-card-gap); padding: 40px; border: 1px solid #d7d7e0; border-radius: 12px; background: linear-gradient(#fff 70%, #f5f5f5); box-shadow: 0 12px 15px rgb(13 15 51 / 8%); scroll-margin-top: 80px; transition: transform 500ms ease, box-shadow 500ms ease, filter 500ms ease; }
-      .value-card:last-of-type { margin-bottom: 0; }
-      .value-stack-tail { display: none; }
+      #value-6 { margin-bottom: 0; }
+      .value-stack-tail { height: max(calc(100vh - 80px), calc(var(--value-card-height) + var(--value-card-gap))); }
+      .value-final-gap { display: none; }
+      .value-final-stage { display: contents; }
       @media (min-width: 701px) and (prefers-reduced-motion: no-preference) {
-        /* Keep card five sticky until card six covers it, then let both scroll away. */
-        .value-card:nth-last-of-type(2) { margin-bottom: 0; }
-        .value-card:last-of-type { position: relative; top: auto; margin-top: var(--value-card-gap); }
+        /* Card six arrives over card five; the stage holds it briefly during the exit. */
+        #value-5 { margin-bottom: 0; }
+        .value-final-gap { display: block; height: var(--value-card-gap); }
+        .value-final-stage { display: block; position: sticky; top: 80px; z-index: 6; width: min(100%, 540px); margin: 0 auto; }
+        #value-6 { position: relative; top: auto; width: 100%; margin: 0; }
+        .value-stack-tail { height: var(--value-card-height); }
       }
       .value-card.is-covered { transform: translateY(-10px) scale(0.97); filter: brightness(0.97); }
       .value-card.is-current { box-shadow: 0 22px 42px rgb(13 15 51 / 14%); }
-      .value-card:hover:not(.is-covered) { transform: translateY(-5px); box-shadow: 0 18px 30px rgb(13 15 51 / 12%); }
       .value-card-top { display: flex; justify-content: space-between; align-items: flex-start; color: var(--blue); font-size: 16px; font-weight: 600; letter-spacing: 1.65px; }
       .value-card-top span:last-child { color: #f0f3ff; font-family: "Season Mix", Georgia, serif; font-size: 96px; font-weight: 400; line-height: .7; }
       .value-card h3 { margin: 0; font-family: "Season Mix", Georgia, serif; font-size: 48px; font-weight: 600; line-height: 52px; white-space: pre-line; }
@@ -675,7 +679,7 @@
       @media (prefers-reduced-motion: reduce) {
         html { scroll-behavior: auto; }
         .button, .polaroid, .person, .angled-photo, .product-card, .value-card { transition: none; }
-        .button:hover, .polaroid:hover, .person:hover, .person:focus-visible, .product-card:hover, .value-card:hover { transform: none; }
+        .button:hover, .polaroid:hover, .person:hover, .person:focus-visible, .product-card:hover { transform: none; }
         .value-card { position: static; margin-bottom: 24px; filter: none; }
         .value-card.is-covered { transform: none; filter: none; }
       }
@@ -757,10 +761,9 @@
         .values-progress { margin-top: 64px; }
         /* JavaScript measures the tallest card and sets this value on .values. */
         .values-cards { --value-card-height: inherit; --value-card-gap: 18vh; grid-column: 1; grid-row: 2; padding: 40px 20px 0; }
-        .value-stack-tail { display: block; height: clamp(80px, 14vh, 120px); }
+        .value-stack-tail { height: clamp(80px, 14vh, 120px); }
         .value-controls { display: none; }
         .value-card { top: 20px; padding: 20px; scroll-margin-top: 20px; }
-        .value-card:hover:not(.is-covered) { transform: none; }
         .value-card-top { font-size: 12px; letter-spacing: 1.4px; }
         .value-card-top span:last-child { font-size: 52px; line-height: 52px; }
         .value-card h3 { font-size: 24px; font-weight: 700; line-height: 32px; }
@@ -812,7 +815,6 @@
         .value-card { position: static; margin-bottom: 24px; }
         .value-stack-tail { display: none; }
         .values-cards { padding-bottom: 80px; }
-        .value-card:hover:not(.is-covered),
         .angled-photo:hover:not(.is-dragging):not(.is-dropped) { transform: none; }
       }
       @media (prefers-reduced-motion: reduce) and (max-width: 700px) {
@@ -1033,12 +1035,15 @@
       <p>Share context freely, keep your commitments, and step in when a teammate needs help.</p>
       <span class="value-card-bottom">HOW WE WORK</span>
     </article>
-    <article class="value-card" id="value-6" style="--stack-order: 6">
-      <div class="value-card-top"><span>OUR VALUES</span><span>06</span></div>
-      <h3>Company &gt; Team<br>&gt; Me</h3>
-      <p>Choose what is best for SBNRI, help teammates succeed, and share the credit.</p>
-      <span class="value-card-bottom">HOW WE WORK</span>
-    </article>
+    <div class="value-final-gap" aria-hidden="true"></div>
+    <div class="value-final-stage">
+      <article class="value-card" id="value-6" style="--stack-order: 6">
+        <div class="value-card-top"><span>OUR VALUES</span><span>06</span></div>
+        <h3>Company &gt; Team<br>&gt; Me</h3>
+        <p>Choose what is best for SBNRI, help teammates succeed, and share the credit.</p>
+        <span class="value-card-bottom">HOW WE WORK</span>
+      </article>
+    </div>
     <div class="value-stack-tail" aria-hidden="true"></div>
   </div>
   <div class="value-controls" role="group" aria-label="Choose a core value">
