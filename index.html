@@ -580,11 +580,15 @@
       .values-intro > p:not(.eyebrow):not(.values-progress) { max-width: 460px; color: #eaecf0; font-size: 18px; line-height: 28px; }
       .values-progress { display: flex; justify-content: space-between; gap: 16px; margin-top: auto; color: white; font-size: 12px; letter-spacing: 1px; }
       .values-progress span { color: rgb(255 255 255 / 60%); }
-      /* The final spacer lets card six stick over card five before the section ends. */
       .values-cards { --value-card-height: 360px; --value-card-gap: 48vh; min-width: 0; grid-column: 2; grid-row: 1; padding: 80px 80px 0; }
       .value-card { display: flex; flex-direction: column; justify-content: space-between; position: sticky; top: 80px; z-index: var(--stack-order); width: min(100%, 540px); min-width: 0; min-height: var(--value-card-height); margin: 0 auto var(--value-card-gap); padding: 40px; border: 1px solid #d7d7e0; border-radius: 12px; background: linear-gradient(#fff 70%, #f5f5f5); box-shadow: 0 12px 15px rgb(13 15 51 / 8%); scroll-margin-top: 80px; transition: transform 500ms ease, box-shadow 500ms ease, filter 500ms ease; }
       .value-card:last-of-type { margin-bottom: 0; }
-      .value-stack-tail { height: max(calc(100vh - 80px), calc(var(--value-card-height) + var(--value-card-gap))); }
+      .value-stack-tail { display: none; }
+      @media (min-width: 701px) and (prefers-reduced-motion: no-preference) {
+        /* Keep card five sticky until card six covers it, then let both scroll away. */
+        .value-card:nth-last-of-type(2) { margin-bottom: 0; }
+        .value-card:last-of-type { position: relative; top: auto; margin-top: var(--value-card-gap); }
+      }
       .value-card.is-covered { transform: translateY(-10px) scale(0.97); filter: brightness(0.97); }
       .value-card.is-current { box-shadow: 0 22px 42px rgb(13 15 51 / 14%); }
       .value-card:hover:not(.is-covered) { transform: translateY(-5px); box-shadow: 0 18px 30px rgb(13 15 51 / 12%); }
@@ -753,7 +757,7 @@
         .values-progress { margin-top: 64px; }
         /* JavaScript measures the tallest card and sets this value on .values. */
         .values-cards { --value-card-height: inherit; --value-card-gap: 18vh; grid-column: 1; grid-row: 2; padding: 40px 20px 0; }
-        .value-stack-tail { height: clamp(80px, 14vh, 120px); }
+        .value-stack-tail { display: block; height: clamp(80px, 14vh, 120px); }
         .value-controls { display: none; }
         .value-card { top: 20px; padding: 20px; scroll-margin-top: 20px; }
         .value-card:hover:not(.is-covered) { transform: none; }
