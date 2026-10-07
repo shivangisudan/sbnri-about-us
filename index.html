@@ -729,10 +729,6 @@
         .hero-content::before { top: 330px; right: auto; left: 0; background-image: url("assets/carousel-ellipse-mobile.svg"); }
         .photo-strip { padding: 12px 0; }
         .photo-group { gap: 22px; padding-right: 22px; }
-        /* On phones, finish one pass before restarting the photos. */
-        html.has-js .photo-group[aria-hidden="true"] { display: none; }
-        .photo-track.is-loop-resetting { opacity: 0; transition: none; }
-        .photo-track { transition: opacity 450ms ease; }
         .polaroid { flex-basis: calc(var(--card-width) * 0.555); padding: 8px 8px 11px; border-radius: 4px; }
         .polaroid figcaption { margin-top: 8px; font-size: 11px; }
         .polaroid:nth-child(3) { --photo-width: 100%; --photo-height: 100%; --photo-left: 0%; --photo-top: 0%; }
@@ -817,7 +813,6 @@
       }
       @media (prefers-reduced-motion: reduce) and (max-width: 700px) {
         .values-cards { padding-bottom: 40px; }
-        .photo-track { transition: none; }
       }
 
     </style>
@@ -1223,7 +1218,7 @@
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
   const mobilePhotos = window.matchMedia("(max-width: 700px)");
 
-  // Desktop uses a second copy for a seamless loop. Mobile restarts after the last photo.
+  // A second copy keeps the photos moving continuously in either direction.
   const photoGroup = photoTrack.firstElementChild;
   const repeatedPhotos = photoGroup.cloneNode(true);
   repeatedPhotos.setAttribute("aria-hidden", "true");
@@ -1231,7 +1226,6 @@
 
   let position = 0;
   let groupWidth = photoGroup.offsetWidth;
-  let mobileEnd = 0;
   let lastFrameTime = 0;
   let lastPointerX = 0;
   let dragSamples = [];
@@ -1244,8 +1238,6 @@
   // Measure the row when its size changes, instead of measuring it every frame.
   function measurePhotos() {
     groupWidth = photoGroup.offsetWidth;
-    const lastPhoto = photoGroup.lastElementChild;
-    mobileEnd = lastPhoto.offsetLeft + lastPhoto.offsetWidth + 16;
     drawPhotos();
   }
 
@@ -1257,7 +1249,6 @@
   mobilePhotos.addEventListener("change", () => {
     position = 0;
     coastSpeed = 0;
-    photoTrack.classList.remove("is-loop-resetting");
     measurePhotos();
   });
   measurePhotos();
@@ -1278,24 +1269,10 @@
   function drawPhotos() {
     if (!groupWidth) return;
 
-    if (mobilePhotos.matches) {
-      position = Math.max(-mobileEnd, Math.min(0, position));
-    } else {
-      // Both groups look the same, so wrapping the distance makes a seamless loop.
-      while (position <= -groupWidth) position += groupWidth;
-      while (position > 0) position -= groupWidth;
-    }
+    // Both groups look the same, so wrapping their width has no visible jump.
+    while (position <= -groupWidth) position += groupWidth;
+    while (position > 0) position -= groupWidth;
     photoTrack.style.transform = `translateX(${position}px)`;
-  }
-
-  function restartMobilePhotos() {
-    // At this point the last photo is fully offscreen, so the reset is invisible.
-    coastSpeed = 0;
-    photoTrack.classList.add("is-loop-resetting");
-    position = 0;
-    drawPhotos();
-    setTimeout(() => photoTrack.classList.remove("is-loop-resetting"), 60);
-    resumePhotosAt = Math.max(resumePhotosAt, performance.now() + 650);
   }
 
   function movePhotos(time) {
@@ -1309,9 +1286,7 @@
         drawPhotos();
         coastSpeed *= Math.exp(-elapsed / 380);
 
-        if (mobilePhotos.matches && position <= -mobileEnd) {
-          restartMobilePhotos();
-        } else if (Math.abs(coastSpeed) < 0.02 || (mobilePhotos.matches && position === 0 && coastSpeed > 0)) {
+        if (Math.abs(coastSpeed) < 0.02) {
           coastSpeed = 0;
           resumePhotosAt = Math.max(resumePhotosAt, time + 900);
         }
@@ -1320,7 +1295,6 @@
         const pixelsPerSecond = mobilePhotos.matches ? 22 : groupWidth / 110;
         position -= pixelsPerSecond * elapsed / 1000;
         drawPhotos();
-        if (mobilePhotos.matches && position <= -mobileEnd) restartMobilePhotos();
       }
     }
     requestAnimationFrame(movePhotos);
@@ -1363,7 +1337,6 @@
     dragSamples = [];
     // Autoplay waits until the swipe has settled and the visitor has a moment to look.
     resumePhotosAt = now + 1800;
-    if (mobilePhotos.matches && position <= -mobileEnd) restartMobilePhotos();
     photoStrip.classList.remove("is-dragging");
   }
 
