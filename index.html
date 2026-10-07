@@ -731,16 +731,9 @@
         .values-progress { margin-top: 64px; }
         .values-cards { --value-card-height: inherit; --value-card-gap: 40vh; grid-column: 1; grid-row: 2; padding: 40px 20px 0; }
         .value-stack-tail { height: max(calc(100vh - 20px), calc(var(--value-card-height) + var(--value-card-gap))); }
-        /* The rail stays just below the sticky cards, even when text makes them taller. */
-        .value-controls { grid-column: 1; grid-row: 2; justify-self: center; top: calc(40px + var(--value-card-height)); width: 110px; height: 10px; margin: 24px 0 0; }
-        .value-track { top: 0; left: 0; transform: none; }
+        .value-controls { display: none; }
         .value-card { top: 20px; padding: 20px; scroll-margin-top: 20px; }
-        .values.has-side-motion .value-controls { opacity: 0; transition: opacity 180ms ease; }
-        .values.has-side-motion.is-rail-visible .value-controls { opacity: 1; }
-        /* JavaScript sets these distances as each card enters from the right. */
-        .values.has-side-motion .value-card { transform: translate3d(var(--entry-x, 0px), var(--entry-y, 0px), 0) scale(var(--stack-scale, 1)); transform-origin: center top; transition: box-shadow 500ms ease, filter 500ms ease; }
-        .values.has-side-motion .value-card.is-covered { --stack-scale: .97; }
-        .values.has-side-motion .value-card:hover:not(.is-covered) { transform: translate3d(var(--entry-x, 0px), var(--entry-y, 0px), 0); }
+        .value-card:hover:not(.is-covered) { transform: none; }
         .value-card-top { font-size: 12px; letter-spacing: 1.4px; }
         .value-card-top span:last-child { font-size: 52px; line-height: 52px; }
         .value-card h3 { font-size: 24px; font-weight: 700; line-height: 32px; }
@@ -1408,13 +1401,11 @@
     metricObserver.observe(progressCard);
   }
 
-  // All six cards stay in the page; scrolling places each new card on top.
-  // On phones, the incoming card slides sideways into the same fixed spot.
+  // All six cards stay in the page; scrolling lifts each new card over the last.
   const valuesSection = document.querySelector(".values");
   const valueCards = [...document.querySelectorAll(".value-card")];
   const valueTrack = document.querySelector(".value-track");
   const valueButtons = [...document.querySelectorAll(".value-controls button")];
-  const entryY = valueCards.map(() => 0);
 
   function measureMobileValueCards() {
     if (window.innerWidth > 700) {
@@ -1427,36 +1418,15 @@
   }
 
   function updateValueStack() {
-    const mobileMotion = window.innerWidth <= 700 && !reducedMotion.matches;
     const stickyTop = window.innerWidth <= 700 ? 20 : 80;
-    valuesSection.classList.toggle("has-side-motion", mobileMotion);
-    if (!mobileMotion) {
-      valueCards.forEach((card, index) => {
-        entryY[index] = 0;
-        card.style.removeProperty("--entry-x");
-        card.style.removeProperty("--entry-y");
-      });
-    }
-
-    // Subtract our own translation so the active step follows real scroll position.
-    const naturalTops = valueCards.map((card, index) => card.getBoundingClientRect().top - entryY[index]);
-    const slideDistance = Math.min(280, window.innerHeight * 0.35);
-    valuesSection.classList.toggle("is-rail-visible", mobileMotion && naturalTops[0] <= stickyTop + slideDistance);
     let currentIndex = 0;
-    naturalTops.forEach((top, index) => {
-      if (top <= stickyTop + 12) currentIndex = index;
+    valueCards.forEach((card, index) => {
+      if (card.getBoundingClientRect().top <= stickyTop + 12) currentIndex = index;
     });
 
     valueCards.forEach((card, index) => {
       card.classList.toggle("is-covered", index < currentIndex && !reducedMotion.matches);
       card.classList.toggle("is-current", index === currentIndex);
-      if (!mobileMotion) return;
-
-      const distance = Math.max(0, naturalTops[index] - stickyTop);
-      const progress = Math.min(1, distance / slideDistance);
-      entryY[index] = -Math.min(distance, slideDistance);
-      card.style.setProperty("--entry-x", `${Math.round((card.offsetWidth + 60) * progress)}px`);
-      card.style.setProperty("--entry-y", `${entryY[index]}px`);
     });
     document.querySelector("#value-progress").textContent = `${String(currentIndex + 1).padStart(2, "0")} / 06`;
     valueTrack.dataset.current = String(currentIndex);
@@ -1481,19 +1451,9 @@
   measureMobileValueCards();
   updateValueStack();
 
-  function scrollToValue(index) {
-    const mobileMotion = window.innerWidth <= 700 && !reducedMotion.matches;
-    if (!mobileMotion) {
-      valueCards[index].scrollIntoView({ behavior: reducedMotion.matches ? "auto" : "smooth", block: "start" });
-      return;
-    }
-    const naturalTop = valueCards[index].getBoundingClientRect().top - entryY[index];
-    window.scrollTo({ top: window.scrollY + naturalTop - 20, behavior: "smooth" });
-  }
-
   valueButtons.forEach((button, index) => {
     button.addEventListener("click", () => {
-      scrollToValue(index);
+      valueCards[index].scrollIntoView({ behavior: reducedMotion.matches ? "auto" : "smooth", block: "start" });
     });
     button.addEventListener("keydown", (event) => {
       if (!["ArrowRight", "ArrowLeft", "ArrowDown", "ArrowUp"].includes(event.key)) return;
@@ -1501,7 +1461,7 @@
       const direction = event.key === "ArrowRight" || event.key === "ArrowDown" ? 1 : -1;
       const nextIndex = (index + direction + valueButtons.length) % valueButtons.length;
       valueButtons[nextIndex].focus();
-      scrollToValue(nextIndex);
+      valueCards[nextIndex].scrollIntoView({ behavior: reducedMotion.matches ? "auto" : "smooth", block: "start" });
     });
   });
 
