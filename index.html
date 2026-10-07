@@ -1234,6 +1234,8 @@
   let mobileEnd = 0;
   let lastFrameTime = 0;
   let lastPointerX = 0;
+  let dragSamples = [];
+  let coastSpeed = 0;
   let activePhotoPointer = null;
   let isDragging = false;
   let photosVisible = true;
@@ -1254,14 +1256,22 @@
   }
   mobilePhotos.addEventListener("change", () => {
     position = 0;
+    coastSpeed = 0;
     photoTrack.classList.remove("is-loop-resetting");
     measurePhotos();
   });
   measurePhotos();
+  reducedMotion.addEventListener("change", () => {
+    if (reducedMotion.matches) coastSpeed = 0;
+  });
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) coastSpeed = 0;
+  });
 
   if ("IntersectionObserver" in window) {
     new IntersectionObserver(([entry]) => {
       photosVisible = entry.isIntersecting;
+      if (!photosVisible) coastSpeed = 0;
     }).observe(photoStrip);
   }
 
@@ -1280,6 +1290,7 @@
 
   function restartMobilePhotos() {
     // At this point the last photo is fully offscreen, so the reset is invisible.
+    coastSpeed = 0;
     photoTrack.classList.add("is-loop-resetting");
     position = 0;
     drawPhotos();
@@ -1291,12 +1302,26 @@
     const elapsed = lastFrameTime ? Math.min(time - lastFrameTime, 50) : 0;
     lastFrameTime = time;
 
-    if (!isDragging && photosVisible && time >= resumePhotosAt && !reducedMotion.matches && !document.hidden) {
-      // Use a gentler pace on phones; keep the desktop loop at 110 seconds.
-      const pixelsPerSecond = mobilePhotos.matches ? 22 : groupWidth / 110;
-      position -= pixelsPerSecond * elapsed / 1000;
-      drawPhotos();
-      if (mobilePhotos.matches && position <= -mobileEnd) restartMobilePhotos();
+    if (!isDragging && photosVisible && !document.hidden && !reducedMotion.matches) {
+      if (coastSpeed) {
+        // Friction eases a released swipe to rest without snapping to a card.
+        position += coastSpeed * elapsed;
+        drawPhotos();
+        coastSpeed *= Math.exp(-elapsed / 380);
+
+        if (mobilePhotos.matches && position <= -mobileEnd) {
+          restartMobilePhotos();
+        } else if (Math.abs(coastSpeed) < 0.02 || (mobilePhotos.matches && position === 0 && coastSpeed > 0)) {
+          coastSpeed = 0;
+          resumePhotosAt = Math.max(resumePhotosAt, time + 900);
+        }
+      } else if (time >= resumePhotosAt) {
+        // Use a gentle pace on phones; keep the desktop loop at 110 seconds.
+        const pixelsPerSecond = mobilePhotos.matches ? 22 : groupWidth / 110;
+        position -= pixelsPerSecond * elapsed / 1000;
+        drawPhotos();
+        if (mobilePhotos.matches && position <= -mobileEnd) restartMobilePhotos();
+      }
     }
     requestAnimationFrame(movePhotos);
   }
@@ -1306,7 +1331,9 @@
     if (activePhotoPointer !== null) return;
     activePhotoPointer = event.pointerId;
     isDragging = true;
+    coastSpeed = 0;
     lastPointerX = event.clientX;
+    dragSamples = [{ x: event.clientX, time: performance.now() }];
     photoStrip.classList.add("is-dragging");
     photoStrip.setPointerCapture(event.pointerId);
   });
@@ -1315,6 +1342,9 @@
     if (event.pointerId !== activePhotoPointer) return;
     position += event.clientX - lastPointerX;
     lastPointerX = event.clientX;
+    const now = performance.now();
+    dragSamples.push({ x: event.clientX, time: now });
+    dragSamples = dragSamples.filter((sample) => now - sample.time <= 120);
     drawPhotos();
   });
 
@@ -1322,8 +1352,17 @@
     if (event.pointerId !== activePhotoPointer) return;
     activePhotoPointer = null;
     isDragging = false;
-    // Let the photo stay where the visitor left it before autoplay resumes.
-    resumePhotosAt = performance.now() + 1800;
+    const now = performance.now();
+    const first = dragSamples[0];
+    const last = dragSamples[dragSamples.length - 1];
+    if (event.type === "pointerup" && !reducedMotion.matches && first && last && last.time > first.time && now - last.time < 100) {
+      const swipeSpeed = (last.x - first.x) / (last.time - first.time);
+      coastSpeed = Math.max(-1.25, Math.min(1.25, swipeSpeed));
+      if (Math.abs(coastSpeed) < 0.08) coastSpeed = 0;
+    }
+    dragSamples = [];
+    // Autoplay waits until the swipe has settled and the visitor has a moment to look.
+    resumePhotosAt = now + 1800;
     if (mobilePhotos.matches && position <= -mobileEnd) restartMobilePhotos();
     photoStrip.classList.remove("is-dragging");
   }
