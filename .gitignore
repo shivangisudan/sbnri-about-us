@@ -1,0 +1,14 @@
+.DS_Store
+style.css
+
+# Keep the font folder small: only files referenced by index.html are published.
+Fonts/*
+!Fonts/Figtree.ttf
+!Fonts/Figtree-Italic.ttf
+!Fonts/Figtree-OFL.txt
+!Fonts/CaveatBrush-Regular.ttf
+!Fonts/CaveatBrush-OFL.txt
+!Fonts/SeasonMix-TRIAL-Regular.otf
+!Fonts/SeasonMix-TRIAL-SemiBold.otf
+!Fonts/SeasonMix-TRIAL-SemiBoldItalic.otf
+!Fonts/SeasonMix-TRIAL-Bold.otf

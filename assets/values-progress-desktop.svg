@@ -1,0 +1,15 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="110" height="10" viewBox="0 0 110 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Carousel Progress" clip-path="url(#clip0_0_95)">
+<circle id="Active Dot" cx="5" cy="5" r="5" fill="#7083FF"/>
+<circle id="Dot 2" cx="25" cy="5" r="5" fill="#F0F3FF"/>
+<circle id="Dot 3" cx="45" cy="5" r="5" fill="#F0F3FF"/>
+<circle id="Dot 4" cx="65" cy="5" r="5" fill="#F0F3FF"/>
+<circle id="Dot 5" cx="85" cy="5" r="5" fill="#F0F3FF"/>
+<circle id="Dot 6" cx="105" cy="5" r="5" fill="#F0F3FF"/>
+</g>
+<defs>
+<clipPath id="clip0_0_95">
+<rect width="110" height="10" fill="white"/>
+</clipPath>
+</defs>
+</svg>
