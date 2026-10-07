@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Meet the SBNRI team simplifying NRI investments in India and building a financial home for global Indians.">
     <title>About Us | SBNRI</title>
     <style>
       /* Figtree is the body font. This variable file covers regular through bold. */
@@ -10,6 +11,7 @@
         font-family: Figtree;
         src: url("Fonts/Figtree.ttf") format("truetype");
         font-weight: 300 900;
+        font-display: swap;
       }
 
       @font-face {
@@ -17,12 +19,14 @@
         src: url("Fonts/Figtree-Italic.ttf") format("truetype");
         font-weight: 300 900;
         font-style: italic;
+        font-display: swap;
       }
 
       @font-face {
         font-family: "Caveat Brush";
         src: url("Fonts/CaveatBrush-Regular.ttf") format("truetype");
         font-weight: 400;
+        font-display: swap;
       }
 
       /* The four headline weights used in the design. */
@@ -30,12 +34,14 @@
         font-family: "Season Mix";
         src: url("Fonts/SeasonMix-TRIAL-Regular.otf") format("opentype");
         font-weight: 400;
+        font-display: swap;
       }
 
       @font-face {
         font-family: "Season Mix";
         src: url("Fonts/SeasonMix-TRIAL-SemiBold.otf") format("opentype");
         font-weight: 600;
+        font-display: swap;
       }
 
       @font-face {
@@ -43,12 +49,14 @@
         src: url("Fonts/SeasonMix-TRIAL-SemiBoldItalic.otf") format("opentype");
         font-weight: 600;
         font-style: italic;
+        font-display: swap;
       }
 
       @font-face {
         font-family: "Season Mix";
         src: url("Fonts/SeasonMix-TRIAL-Bold.otf") format("opentype");
         font-weight: 700;
+        font-display: swap;
       }
 
       :root {
@@ -98,9 +106,9 @@
         font-weight: 600;
         line-height: 24px;
         text-decoration: none;
+        transition: background 200ms ease, transform 200ms ease;
       }
 
-      .button { transition: background 200ms ease, transform 200ms ease; }
       .button:hover, .button:focus-visible { background: #000078; transform: translateY(-3px); box-shadow: 0 10px 22px rgb(1 0 162 / 20%); }
       .button:active { transform: translateY(0) scale(0.98); }
 
@@ -599,8 +607,7 @@
       .people h2 { margin: 32px 0; font-family: "Season Mix", Georgia, serif; font-size: 64px; font-weight: 400; line-height: 78px; text-align: center; }
       .people h2 span { color: var(--blue); }
       .people-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; }
-      .person { display: block; min-width: 0; padding: 11px; border: 1px solid #f2f4f7; border-radius: 16px; background: #f9fafb; text-decoration: none; }
-      .person { transition: transform 220ms ease, box-shadow 220ms ease; }
+      .person { display: block; min-width: 0; padding: 11px; border: 1px solid #f2f4f7; border-radius: 16px; background: #f9fafb; text-decoration: none; transition: transform 220ms ease, box-shadow 220ms ease; }
       .person:hover, .person:focus-visible { transform: translateY(-5px); box-shadow: 0 10px 20px rgb(16 24 40 / 10%); }
       .person:focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
       .person-image { display: block; width: 100%; aspect-ratio: 1; object-fit: cover; }
@@ -689,7 +696,7 @@
         .value-card-top span:last-child { font-size: 72px; }
       }
 
-      /* Mobile follows the mobile Figma order and omits the product cards. */
+      /* The navigation becomes a menu before the rest of the page becomes mobile. */
       @media (max-width: 1000px) {
         .site-nav { min-height: 64px; gap: 8px; padding: 10px 20px; flex-wrap: wrap; border-bottom: 1px solid #f2f4f7; }
         .site-logo img { width: 109px; }
@@ -705,6 +712,14 @@
         .nav-links > li { border-bottom: 1px solid #edf0f5; padding: 13px 0; }
         .nav-dropdown { position: static; width: auto; padding: 8px 0 0 12px; border: 0; box-shadow: none; }
       }
+      @media (max-width: 360px) {
+        html.has-js .site-nav { flex-wrap: nowrap; padding-inline: 12px; }
+        html.has-js .site-logo img { width: 96px; }
+        html.has-js .nav-download { padding-inline: 10px; font-size: 12px; }
+        html.has-js .menu-button { flex: 0 0 40px; width: 40px; height: 40px; }
+      }
+
+      /* Mobile follows the mobile Figma order and omits the product cards. */
       @media (max-width: 700px) {
         .hero { padding: 52px 20px 32px; }
         .hero h1 { margin-bottom: 20px; font-size: 36px; line-height: 47px; letter-spacing: 0.2px; }
@@ -714,6 +729,8 @@
         .hero-content::before { top: 330px; right: auto; left: 0; background-image: url("assets/carousel-ellipse-mobile.svg"); }
         .photo-strip { padding: 12px 0; }
         .photo-group { gap: 22px; padding-right: 22px; }
+        /* The extra space matters only when JavaScript adds the looping copy. */
+        html.has-js .photo-group { padding-right: calc(100vw + 24px); }
         .polaroid { flex-basis: calc(var(--card-width) * 0.555); padding: 8px 8px 11px; border-radius: 4px; }
         .polaroid figcaption { margin-top: 8px; font-size: 11px; }
         .polaroid:nth-child(3) { --photo-width: 100%; --photo-height: 100%; --photo-left: 0%; --photo-top: 0%; }
@@ -736,6 +753,7 @@
         .values-title-mobile { display: inline; }
         .values-intro > p:not(.eyebrow):not(.values-progress) { font-size: 16px; line-height: 24px; }
         .values-progress { margin-top: 64px; }
+        /* JavaScript measures the tallest card and sets this value on .values. */
         .values-cards { --value-card-height: inherit; --value-card-gap: 40vh; grid-column: 1; grid-row: 2; padding: 40px 20px 0; }
         .value-stack-tail { height: max(calc(100vh - 20px), calc(var(--value-card-height) + var(--value-card-gap))); }
         .value-controls { display: none; }
@@ -844,27 +862,27 @@
   <div class="photo-track" id="photo-track">
     <div class="photo-group">
       <figure class="polaroid" style="--card-width: 400px; --image-ratio: 372 / 296; --angle: -0.5deg; --photo-width: 133.06%; --photo-height: 125.33%; --photo-left: -16.63%; --photo-top: -0.13%;">
-        <div class="photo-frame"><img class="photo-image" src="assets/carousel-cricket.png" alt="SBNRI colleagues together on a cricket field" fetchpriority="high" draggable="false"></div>
+        <div class="photo-frame"><img class="photo-image" src="assets/carousel-cricket.jpg" alt="SBNRI colleagues together on a cricket field" fetchpriority="high" draggable="false"></div>
         <figcaption>Howzat! Team XI ready to play</figcaption>
       </figure>
       <figure class="polaroid" style="--card-width: 396px; --image-ratio: 368 / 203; --angle: -1.5deg; --photo-width: 110.65%; --photo-height: 150.24%; --photo-left: -0.09%; --photo-top: -32.23%;">
-        <div class="photo-frame"><img class="photo-image" src="assets/carousel-hackathon.png" alt="Colleagues gathered at a hackathon" loading="lazy" draggable="false"></div>
+        <div class="photo-frame"><img class="photo-image" src="assets/carousel-hackathon.jpg" alt="Colleagues gathered at a hackathon" loading="lazy" draggable="false"></div>
         <figcaption>All hyped for the hackathon 🚀</figcaption>
       </figure>
       <figure class="polaroid" style="--card-width: 385px; --image-ratio: 357 / 268; --angle: -1.5deg; --photo-width: 106.18%; --photo-height: 109.65%; --photo-left: -1.04%; --photo-top: -4.06%;">
-        <div class="photo-frame"><picture><source media="(max-width: 700px)" srcset="assets/carousel-festival-mobile.png"><img class="photo-image" src="assets/carousel-festival.png" alt="Team members celebrating a festival" loading="lazy" draggable="false"></picture></div>
+        <div class="photo-frame"><picture><source media="(max-width: 700px)" srcset="assets/carousel-festival-mobile.jpg"><img class="photo-image" src="assets/carousel-festival.jpg" alt="Team members celebrating a festival" loading="lazy" draggable="false"></picture></div>
         <figcaption>Ganpati Bappa Morya! 🙏</figcaption>
       </figure>
       <figure class="polaroid" style="--card-width: 260px; --image-ratio: 3 / 4; --angle: 1deg">
-        <div class="photo-frame"><img class="photo-image" src="assets/carousel-birthday.png" alt="Colleagues celebrating a birthday" loading="lazy" draggable="false"></div>
+        <div class="photo-frame"><img class="photo-image" src="assets/carousel-birthday.jpg" alt="Colleagues celebrating a birthday" loading="lazy" draggable="false"></div>
         <figcaption>Cake. Candles. Chaos!</figcaption>
       </figure>
       <figure class="polaroid" style="--card-width: 400px; --image-ratio: 4 / 3; --angle: -0.5deg">
-        <div class="photo-frame"><img class="photo-image" src="assets/carousel-after-hours.png" alt="Team members spending time together after work" loading="lazy" draggable="false"></div>
+        <div class="photo-frame"><img class="photo-image" src="assets/carousel-after-hours.jpg" alt="Team members spending time together after work" loading="lazy" draggable="false"></div>
         <figcaption>After-hours shenanigans</figcaption>
       </figure>
       <figure class="polaroid" style="--card-width: 300px; --image-ratio: 1280 / 1558; --angle: 2deg">
-        <div class="photo-frame"><img class="photo-image" src="assets/carousel-coffee.png" alt="Colleagues sharing a coffee break" loading="lazy" draggable="false"></div>
+        <div class="photo-frame"><img class="photo-image" src="assets/carousel-coffee.jpg" alt="Colleagues sharing a coffee break" loading="lazy" draggable="false"></div>
         <figcaption>Brainstorms &amp; coffee runs</figcaption>
       </figure>
       <figure class="polaroid" style="--card-width: 260px; --image-ratio: 2 / 3; --angle: 1deg">
@@ -872,27 +890,27 @@
         <figcaption>Decked out for festivities</figcaption>
       </figure>
       <figure class="polaroid" style="--card-width: 486px; --image-ratio: 458 / 344; --angle: 2deg; --photo-width: 190%; --photo-height: 189.72%; --photo-left: -35.36%; --photo-top: -38.45%;">
-        <div class="photo-frame"><img class="photo-image" src="assets/carousel-offsite.png" alt="Team members at an offsite" loading="lazy" draggable="false"></div>
+        <div class="photo-frame"><img class="photo-image" src="assets/carousel-offsite.jpg" alt="Team members at an offsite" loading="lazy" draggable="false"></div>
         <figcaption>Out of office, into adventure at the offsite🏕️</figcaption>
       </figure>
       <figure class="polaroid" style="--card-width: 334px; --image-ratio: 306 / 323; --angle: -0.5deg; --photo-width: 133.93%; --photo-height: 169.09%; --photo-left: -33.93%; --photo-top: -34.55%;">
-        <div class="photo-frame"><img class="photo-image" src="assets/carousel-townhall.png" alt="Colleagues gathered for a townhall" loading="lazy" draggable="false"></div>
+        <div class="photo-frame"><img class="photo-image" src="assets/carousel-townhall.jpg" alt="Colleagues gathered for a townhall" loading="lazy" draggable="false"></div>
         <figcaption>Townhall fuel up</figcaption>
       </figure>
       <figure class="polaroid" style="--card-width: 260px; --image-ratio: 3 / 4; --angle: 1deg">
-        <div class="photo-frame"><img class="photo-image" src="assets/carousel-award.png" alt="SBNRI team at the UAE India Startup Series" loading="lazy" draggable="false"></div>
+        <div class="photo-frame"><img class="photo-image" src="assets/carousel-award.jpg" alt="SBNRI team at the UAE India Startup Series" loading="lazy" draggable="false"></div>
         <figcaption>Winners of UAE-India Startup Series</figcaption>
       </figure>
       <figure class="polaroid" style="--card-width: 328px; --image-ratio: 300 / 374; --angle: -0.5deg; --photo-width: 116.85%; --photo-height: 125.10%; --photo-left: 0%; --photo-top: -17.75%;">
-        <div class="photo-frame"><img class="photo-image" src="assets/carousel-memories.png" alt="A wall of team memories" loading="lazy" draggable="false"></div>
+        <div class="photo-frame"><img class="photo-image" src="assets/carousel-memories.jpg" alt="A wall of team memories" loading="lazy" draggable="false"></div>
         <figcaption>Wall of Memories!</figcaption>
       </figure>
       <figure class="polaroid" style="--card-width: 552px; --image-ratio: 524 / 393; --angle: 2deg">
-        <div class="photo-frame"><img class="photo-image" src="assets/carousel-blessings.png" alt="Colleagues celebrating together" loading="lazy" draggable="false"></div>
+        <div class="photo-frame"><img class="photo-image" src="assets/carousel-blessings.jpg" alt="Colleagues celebrating together" loading="lazy" draggable="false"></div>
         <figcaption>Blessings before breakthroughs 🪔</figcaption>
       </figure>
       <figure class="polaroid" style="--card-width: 300px; --image-ratio: 272 / 363; --angle: 2deg">
-        <div class="photo-frame"><img class="photo-image" src="assets/carousel-fan-moment.png" alt="Team members at an Akshay Kumar fan moment" loading="lazy" draggable="false"></div>
+        <div class="photo-frame"><img class="photo-image" src="assets/carousel-fan-moment.jpg" alt="Team members at an Akshay Kumar fan moment" loading="lazy" draggable="false"></div>
         <figcaption>Akshay Kumar fans assemble</figcaption>
       </figure>
     </div>
@@ -915,7 +933,7 @@
 <section class="founding-story" aria-label="Our founding story">
   <p class="founding-year">2020</p>
   <div class="founder-frame">
-    <div class="founder-crop"><img class="founder-photo" src="assets/founders.png" alt="Mudit Vijayvergiya and Ayush Nalotia together at the office" loading="lazy"></div>
+    <div class="founder-crop"><img class="founder-photo" src="assets/founders.jpg" alt="Mudit Vijayvergiya and Ayush Nalotia together at the office" loading="lazy"></div>
   </div>
   <div class="founding-narrative">
     <p>Mudit Vijayvergiya founded SBNRI in 2020 to make investing and essential financial services in India simpler for NRIs. What should have been straightforward often meant fragmented information, paperwork, and too many handoffs.</p>
@@ -930,7 +948,7 @@
   <div class="team-photos team-photos-first">
     <img class="angled-photo team-photo-left-top" src="assets/team-global-recognition.jpg" alt="SBNRI receiving global recognition" loading="lazy" draggable="false">
     <picture>
-      <source media="(max-width: 700px)" srcset="assets/team-together-at-work.png">
+      <source media="(max-width: 700px)" srcset="assets/team-together-at-work.jpg">
       <img class="angled-photo team-photo-left-bottom" src="assets/team-sharing-perspectives.jpg" alt="Colleagues together and sharing ideas" loading="lazy" draggable="false">
     </picture>
   </div>
@@ -941,7 +959,7 @@
   <div class="team-photos team-photos-last">
     <picture>
       <source media="(max-width: 700px)" srcset="assets/team-sharing-perspectives.jpg">
-      <img class="angled-photo team-photo-right-top" src="assets/team-together-at-work.png" alt="Colleagues together and sharing ideas" loading="lazy" draggable="false">
+      <img class="angled-photo team-photo-right-top" src="assets/team-together-at-work.jpg" alt="Colleagues together and sharing ideas" loading="lazy" draggable="false">
     </picture>
     <img class="angled-photo team-photo-right-bottom" src="assets/team-building-together.jpg" alt="The team building together" loading="lazy" draggable="false">
   </div>
@@ -1038,14 +1056,14 @@
   <p class="eyebrow">— 03 / OUR TEAM</p>
   <h2 id="team-title">Meet the <span>Team</span></h2>
   <div class="people-grid">
-    <a class="person" href="https://www.linkedin.com/in/vergis11/" target="_blank" rel="noopener noreferrer" aria-label="View Mudit Vijayvergiya on LinkedIn (opens in a new tab)"><img class="person-image" src="assets/team-mudit.png" alt="Mudit Vijayvergiya" loading="lazy"><div class="person-meta"><h3>Mudit Vijayvergiya</h3><p>Founder &amp; CEO</p></div></a>
-    <a class="person" href="https://www.linkedin.com/in/ayush-nalotia/" target="_blank" rel="noopener noreferrer" aria-label="View Ayush Nalotia on LinkedIn (opens in a new tab)"><img class="person-image" src="assets/team-ayush.png" alt="Ayush Nalotia" loading="lazy"><div class="person-meta"><h3>Ayush Nalotia</h3><p><span class="role-desktop">Co-Founder &amp; CPO</span><span class="role-mobile">Co-founder &amp; CPO</span></p></div></a>
-    <a class="person" href="https://www.linkedin.com/in/santudey/" target="_blank" rel="noopener noreferrer" aria-label="View Santu Dey on LinkedIn (opens in a new tab)"><img class="person-image" src="assets/team-santu.png" alt="Santu Dey" loading="lazy"><div class="person-meta"><h3>Santu Dey</h3><p>Product Head</p></div></a>
-    <a class="person" href="https://www.linkedin.com/in/muhet-gupta/" target="_blank" rel="noopener noreferrer" aria-label="View Muhet Gupta on LinkedIn (opens in a new tab)"><img class="person-image" src="assets/team-muhet.png" alt="Muhet Gupta" loading="lazy"><div class="person-meta"><h3>Muhet Gupta</h3><p>Head of Marketing</p></div></a>
-    <a class="person" href="https://www.linkedin.com/in/susheedha-raj-05336b125/" target="_blank" rel="noopener noreferrer" aria-label="View Susheedha Raj on LinkedIn (opens in a new tab)"><img class="person-image" src="assets/team-susheedha.png" alt="Susheedha Raj" loading="lazy"><div class="person-meta"><h3>Susheedha Raj</h3><p>Wealth Head</p></div></a>
-    <a class="person" href="https://www.linkedin.com/in/sanskriti-aparna-singh-4053801b7/" target="_blank" rel="noopener noreferrer" aria-label="View Sanskriti Singh on LinkedIn (opens in a new tab)"><img class="person-image" src="assets/team-sanskriti.png" alt="Sanskriti Singh" loading="lazy"><div class="person-meta"><h3>Sanskriti Singh</h3><p>HR Head</p></div></a>
-    <a class="person" href="https://www.linkedin.com/in/ganesh-thapliyal-procurement/" target="_blank" rel="noopener noreferrer" aria-label="View Ganesh Thapliyal on LinkedIn (opens in a new tab)"><img class="person-image" src="assets/team-ganesh.png" alt="Ganesh Thapliyal" loading="lazy"><div class="person-meta"><h3>Ganesh Thapliyal</h3><p><span class="role-desktop">Admin and Finance Head</span><span class="role-mobile">Admin &amp; Finance Head</span></p></div></a>
-    <a class="person" href="https://www.linkedin.com/in/prem-kumar-0520711a7/" target="_blank" rel="noopener noreferrer" aria-label="View Prem Kumar on LinkedIn (opens in a new tab)"><img class="person-image" src="assets/team-prem.png" alt="Prem Kumar" loading="lazy"><div class="person-meta"><h3>Prem Kumar</h3><p>Tech Lead</p></div></a>
+    <a class="person" href="https://www.linkedin.com/in/vergis11/" target="_blank" rel="noopener noreferrer" aria-label="View Mudit Vijayvergiya on LinkedIn (opens in a new tab)"><img class="person-image" src="assets/team-mudit.jpg" alt="Mudit Vijayvergiya" loading="lazy"><div class="person-meta"><h3>Mudit Vijayvergiya</h3><p>Founder &amp; CEO</p></div></a>
+    <a class="person" href="https://www.linkedin.com/in/ayush-nalotia/" target="_blank" rel="noopener noreferrer" aria-label="View Ayush Nalotia on LinkedIn (opens in a new tab)"><img class="person-image" src="assets/team-ayush.jpg" alt="Ayush Nalotia" loading="lazy"><div class="person-meta"><h3>Ayush Nalotia</h3><p><span class="role-desktop">Co-Founder &amp; CPO</span><span class="role-mobile">Co-founder &amp; CPO</span></p></div></a>
+    <a class="person" href="https://www.linkedin.com/in/santudey/" target="_blank" rel="noopener noreferrer" aria-label="View Santu Dey on LinkedIn (opens in a new tab)"><img class="person-image" src="assets/team-santu.jpg" alt="Santu Dey" loading="lazy"><div class="person-meta"><h3>Santu Dey</h3><p>Product Head</p></div></a>
+    <a class="person" href="https://www.linkedin.com/in/muhet-gupta/" target="_blank" rel="noopener noreferrer" aria-label="View Muhet Gupta on LinkedIn (opens in a new tab)"><img class="person-image" src="assets/team-muhet.jpg" alt="Muhet Gupta" loading="lazy"><div class="person-meta"><h3>Muhet Gupta</h3><p>Head of Marketing</p></div></a>
+    <a class="person" href="https://www.linkedin.com/in/susheedha-raj-05336b125/" target="_blank" rel="noopener noreferrer" aria-label="View Susheedha Raj on LinkedIn (opens in a new tab)"><img class="person-image" src="assets/team-susheedha.jpg" alt="Susheedha Raj" loading="lazy"><div class="person-meta"><h3>Susheedha Raj</h3><p>Wealth Head</p></div></a>
+    <a class="person" href="https://www.linkedin.com/in/sanskriti-aparna-singh-4053801b7/" target="_blank" rel="noopener noreferrer" aria-label="View Sanskriti Singh on LinkedIn (opens in a new tab)"><img class="person-image" src="assets/team-sanskriti.jpg" alt="Sanskriti Singh" loading="lazy"><div class="person-meta"><h3>Sanskriti Singh</h3><p>HR Head</p></div></a>
+    <a class="person" href="https://www.linkedin.com/in/ganesh-thapliyal-procurement/" target="_blank" rel="noopener noreferrer" aria-label="View Ganesh Thapliyal on LinkedIn (opens in a new tab)"><img class="person-image" src="assets/team-ganesh.jpg" alt="Ganesh Thapliyal" loading="lazy"><div class="person-meta"><h3>Ganesh Thapliyal</h3><p><span class="role-desktop">Admin and Finance Head</span><span class="role-mobile">Admin &amp; Finance Head</span></p></div></a>
+    <a class="person" href="https://www.linkedin.com/in/prem-kumar-0520711a7/" target="_blank" rel="noopener noreferrer" aria-label="View Prem Kumar on LinkedIn (opens in a new tab)"><img class="person-image" src="assets/team-prem.jpg" alt="Prem Kumar" loading="lazy"><div class="person-meta"><h3>Prem Kumar</h3><p>Tech Lead</p></div></a>
   </div>
 </section>
 <section id="careers" class="careers">
@@ -1334,6 +1352,7 @@
 
     photo.addEventListener("pointerdown", (event) => {
       if (event.pointerType === "mouse" && event.button !== 0) return;
+      if (activePointer !== null) return;
       clearTimeout(returnTimer);
       clearTimeout(cleanupTimer);
       photo.classList.remove("is-returning", "is-dropped");
@@ -1442,6 +1461,7 @@
   const valuesSection = document.querySelector(".values");
   const valueCards = [...document.querySelectorAll(".value-card")];
   const valueTrack = document.querySelector(".value-track");
+  const valueProgress = document.querySelector("#value-progress");
   const valueButtons = [...document.querySelectorAll(".value-controls button")];
 
   function measureMobileValueCards() {
@@ -1465,7 +1485,7 @@
       card.classList.toggle("is-covered", index < currentIndex && !reducedMotion.matches);
       card.classList.toggle("is-current", index === currentIndex);
     });
-    document.querySelector("#value-progress").textContent = `${String(currentIndex + 1).padStart(2, "0")} / 06`;
+    valueProgress.textContent = `${String(currentIndex + 1).padStart(2, "0")} / 06`;
     valueTrack.dataset.current = String(currentIndex);
     valueButtons.forEach((button, buttonIndex) => {
       button.setAttribute("aria-pressed", String(buttonIndex === currentIndex));

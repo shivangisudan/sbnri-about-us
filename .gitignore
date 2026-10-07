@@ -1,5 +1,4 @@
 .DS_Store
-style.css
 
 # Keep the font folder small: only files referenced by index.html are published.
 Fonts/*
